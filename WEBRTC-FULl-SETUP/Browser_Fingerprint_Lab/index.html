@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Browser Fingerprint Tracker</title>
+</head>
+<body>
+  <h2>Browser Fingerprint Info</h2>
+  <pre id="output">Loading...</pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+  <script>
+    const output = document.getElementById("output");
+
+    FingerprintJS.load().then(fp => {
+      fp.get().then(result => {
+        const visitorId = result.visitorId;
+        const components = result.components;
+        
+        let details = "Visitor ID: " + visitorId + "\n\n";
+        for (let key in components) {
+          details += key + ": " + JSON.stringify(components[key].value) + "\n";
+        }
+
+        output.textContent = details;
+
+        // Send data to server
+        fetch("logger.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ id: visitorId, data: components })
+        });
+      });
+    });
+  </script>
+</body>
+</html>
